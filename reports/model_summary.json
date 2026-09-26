@@ -1,0 +1,145 @@
+{
+  "timestamp": "2026-09-26T16:52:04.584106",
+  "runtime_min": 87.95,
+  "versions": {
+    "python": "3.10.11",
+    "sklearn": "1.7.1",
+    "xgboost": "3.2.0",
+    "shap": "0.48.0"
+  },
+  "data_cleaning": {
+    "rows_original": 726,
+    "exact_duplicates_removed": 0,
+    "conflicting_descriptor_rows_removed": 0,
+    "systems_with_conflicting_descriptors": [],
+    "other_rows_removed": 1,
+    "rows_final": 725,
+    "systems_final": 121
+  },
+  "drop_temperatures": [],
+  "value_corrections": {
+    "L:P400@40": null
+  },
+  "n_candidate_features": 27,
+  "n_features_per_fold": [
+    22,
+    22,
+    22,
+    22,
+    22
+  ],
+  "sd_convention": "sample SD (ddof=1) across outer folds",
+  "tuning_scoring": "r2",
+  "rf": {
+    "oof": {
+      "r2": 0.6535811739090942,
+      "rmse": 196.62953080467219,
+      "mae": 91.09564934851903,
+      "rmsle": 0.5523674557274075,
+      "mape": 49.019060587895204
+    },
+    "fold_r2": [
+      0.673193159124426,
+      0.11433045580305749
+    ],
+    "fold_rmsle": [
+      0.5418936180372922,
+      0.11184218899101471
+    ],
+    "fold_rmse": [
+      189.07938264392374,
+      57.46458103883407
+    ],
+    "fold_mae": [
+      90.80172901596693,
+      26.246748035018676
+    ]
+  },
+  "arrhenius": {
+    "r2": [
+      0.3677095000551513,
+      0.10503079364158625
+    ],
+    "rmsle": [
+      1.1006128936100448,
+      0.09230805540405117
+    ]
+  },
+  "delta_r2_rf_vs_arrhenius": 0.3054836590692747,
+  "delta_rmsle_rf_vs_arrhenius": -0.5587192755727526,
+  "rf_top10_shap": [
+    "inv_temperature",
+    "weighted_lumo_energy_ev",
+    "temp_x_solvation",
+    "hbd_hbd_count",
+    "hbd_hba_count",
+    "hbond_network_strength",
+    "weighted_solvation_energy_eh",
+    "temp_x_dipole",
+    "hbd_hba_ratio",
+    "interaction_strength"
+  ],
+  "gbm_top10_shap": [
+    "inv_temperature",
+    "weighted_lumo_energy_ev",
+    "hbond_network_strength",
+    "hbd_hba_count",
+    "mw_ratio",
+    "hbd_mw",
+    "weighted_total_energy_eh",
+    "weighted_solvation_energy_eh",
+    "temp_x_solvation",
+    "temp_x_dipole"
+  ],
+  "rf_gbm_shap_spearman": 0.7628458498023717,
+  "worst_systems_rf": [
+    {
+      "des_name": "CC:G",
+      "rms_log_residual": 2.054,
+      "mean_log_residual": 2.034,
+      "n": 6
+    },
+    {
+      "des_name": "BMC:C",
+      "rms_log_residual": 1.526,
+      "mean_log_residual": -1.521,
+      "n": 6
+    },
+    {
+      "des_name": "BMC:G",
+      "rms_log_residual": 1.307,
+      "mean_log_residual": -1.278,
+      "n": 6
+    },
+    {
+      "des_name": "BBC:C",
+      "rms_log_residual": 1.214,
+      "mean_log_residual": -1.192,
+      "n": 6
+    },
+    {
+      "des_name": "CC:X",
+      "rms_log_residual": 1.132,
+      "mean_log_residual": 1.126,
+      "n": 6
+    },
+    {
+      "des_name": "L:P400",
+      "rms_log_residual": 1.021,
+      "mean_log_residual": 1.011,
+      "n": 5
+    },
+    {
+      "des_name": "Cr:EG",
+      "rms_log_residual": 0.96,
+      "mean_log_residual": -0.943,
+      "n": 6
+    },
+    {
+      "des_name": "BMC:EG",
+      "rms_log_residual": 0.943,
+      "mean_log_residual": -0.89,
+      "n": 6
+    }
+  ]
+}
