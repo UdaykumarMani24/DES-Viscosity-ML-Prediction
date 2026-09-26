@@ -21,6 +21,8 @@ The pipeline predicts the dynamic viscosity of deep eutectic solvents (DESs) fro
 |---|---|
 | `DES_Experimental_Data.xlsx` | Original measurement records: 140 DES formulations; density, viscosity and conductivity at 25, 30, 35, 40, 45 and 50 °C |
 | `DES_viscosity_CORRECTED.xlsx` | Rebuilt dataset: every formulation with a unique ID and every viscosity at its measured temperature (840 rows); descriptor status of each formulation; data-quality flags |
+| `viscosity_dataset_filled.csv` | Descriptor table from the original submission. **Used only as the source of descriptors**; its viscosity column is misaligned and must not be used (Section 3.3) |
+| `build_dataset.py` | Rebuilds the modelling dataset from the two files above (Section 5.1) |
 | `viscosity_dataset_CORRECTED_ml_ready.csv` | Modelling dataset used in the manuscript: 121 DES × 6 temperatures (726 rows) with descriptors |
 | `viscosity_pipeline_v3_CORRECTED.py` | Complete analysis pipeline (settings used for the manuscript) |
 | `viscosity_output_CORRECTED/` | All outputs of the manuscript run (figures, tables, reports, fitted models) |
@@ -41,7 +43,7 @@ The modelling dataset was assembled directly from the measurement records:
 **Final dataset: 725 measurements for 121 DES systems at 25–50 °C** (3.1–2528 cP; median 89 cP).
 
 ### 3.3 Note on the earlier release
-The dataset released with the original submission (`viscosity_dataset_filled.csv`) was assembled incorrectly: viscosity values were shifted by one temperature step, the 25 °C position contained a density value, the 50 °C viscosity was missing, and formulations sharing an abbreviated name (e.g., L = lactic acid and lactose; M = malic acid and maltose) were merged. **That file should not be used.** It is superseded by the files above.
+The dataset released with the original submission (`viscosity_dataset_filled.csv`) was assembled incorrectly: viscosity values were shifted by one temperature step, the 25 °C position contained a density value, the 50 °C viscosity was missing, and formulations sharing an abbreviated name (e.g., L = lactic acid and lactose; M = malic acid and maltose) were merged. **Its viscosity values must not be used.** It is kept in this repository only because its descriptor columns are the source of the descriptors in the rebuilt dataset; `build_dataset.py` takes the descriptors from it and the viscosities from `DES_Experimental_Data.xlsx`.
 
 ### 3.4 Known limitations of the data
 * For almost all systems, viscosity decreases by a median factor of about 2.2 per 5 °C step between 25 and 40 °C but only about 1.1 per step between 40 and 50 °C (see `reports/data_qc_step_ratio_by_temperature.csv` and Figure 2 of the manuscript).
@@ -65,7 +67,17 @@ pip install numpy pandas scipy matplotlib seaborn joblib scikit-learn==1.7.1 xgb
 
 > **Note:** GroupKFold fold membership depends on the scikit-learn version. To reproduce the per-fold results (Tables 3–6) exactly, use scikit-learn 1.7.1.
 
-## 5. Running the pipeline
+## 5. Reproducing the results
+
+### 5.1 Rebuild the modelling dataset (optional, about 10 s)
+
+```bash
+python build_dataset.py
+```
+
+This reads `DES_Experimental_Data.xlsx` and `viscosity_dataset_filled.csv` and writes `viscosity_dataset_CORRECTED_ml_ready.csv` and `DES_viscosity_CORRECTED.xlsx`. The CSV it produces is byte-identical to the one provided. No measured value is changed.
+
+### 5.2 Run the analysis pipeline
 
 Place `viscosity_pipeline_v3_CORRECTED.py` and `viscosity_dataset_CORRECTED_ml_ready.csv` in the same folder and run:
 
@@ -76,9 +88,17 @@ python viscosity_pipeline_v3_CORRECTED.py
 Runtime is about 90 minutes on a desktop PC (most of it is the ten fully re-tuned repeated partitions). For a 2-minute smoke test with small grids:
 
 ```bash
-FAST=1 python viscosity_pipeline_v3_CORRECTED.py        # Linux / macOS
-set FAST=1 && python viscosity_pipeline_v3_CORRECTED.py # Windows
+# Linux / macOS
+FAST=1 python viscosity_pipeline_v3_CORRECTED.py
 ```
+
+```bat
+:: Windows (Command Prompt) — two separate lines
+set FAST=1
+python viscosity_pipeline_v3_CORRECTED.py
+```
+
+After a smoke test on Windows, close the window (or run `set FAST=`) before the full run.
 
 ### Main settings (`Config` class at the top of the script)
 
@@ -139,21 +159,24 @@ set FAST=1 && python viscosity_pipeline_v3_CORRECTED.py # Windows
 | `figures/fig7_error_anatomy.png` | Error analysis | Figure 10 |
 | `figures/fig8_partial_dependence.png` | Partial dependence | Figure 11 |
 | `figures/figS2_learning_curve.png` | Learning curve | Figure 12 |
-| `model_comparison_nested_cv.csv`, `fold_metrics_all_models.csv` | Benchmark and per-fold metrics for all models | Tables 5–7 |
+| `reports/tableS2_fold_membership.csv` | DES systems in each outer fold | Table 3 |
+| `reports/tableS3_fold_descriptor_profile.csv` | Descriptor profile of each fold | Table 4 |
+| `nested_cv_fold_metrics_rf.csv`, `nested_cv_fold_metrics_gbm.csv` | Per-fold metrics and selected hyperparameters | Tables 5–6 |
+| `model_comparison_nested_cv.csv`, `fold_metrics_all_models.csv`, `model_comparison_fold_scores.json` | Benchmark and per-fold metrics for all models | Tables 6–7 |
+| `arrhenius_fold_metrics.csv` | Arrhenius baseline per fold | Table 7, Figure 3 |
 | `significance_tests.csv` | Wilcoxon tests (main partition) | Table 8 |
 | `reports/repeated_cv_*.csv` | Repeated-partition scores, rank stability, corrected t-tests | Table 9 |
 | `reports/tableS1_shap_fold_variance_rf.csv`, `..._gbm.csv` | Fold-level SHAP variability | Tables 10–11 |
 | `shap_importance_rf.csv`, `shap_importance_gbm.csv`, `shap_rf_vs_gbm_rank_comparison.csv` | SHAP importances and rank comparison | Tables 12–13 |
-| `reports/tableS2_fold_membership.csv` | DES systems in each outer fold | Table 3 |
-| `reports/tableS3_fold_descriptor_profile.csv` | Descriptor profile of each fold | Table 4 |
 | `reports/learning_curve_*.csv` | Learning curve | Figure 12 |
 | `oof_predictions_rf.csv`, `oof_predictions_gbm.csv` | Out-of-fold predictions with system, temperature and fold | — |
 | `per_system_errors_rf.csv` | System-level errors | Section 4.2 |
 | `reports/data_qc_*.csv`, `reports/removed_rows.csv` | Data-quality checks and excluded measurement | Section 2.1 |
+| `viscosity_dataset_CLEANED.csv` | Exact data used by the models after the pipeline's checks (725 rows) | Section 2.1 |
 | `reports/model_summary.json` | Summary of the run (versions, settings, headline metrics) | — |
 | `models/*.pkl` | Fitted pipelines for each outer fold (Random Forest, GBM) | — |
 
-(Output file names such as `figS4_…` are kept from the pipeline; the table above maps them to the figure numbers in the manuscript.)
+(Output file names such as `figS4_…` and `tableS2_…` are kept from the pipeline; the table above maps them to the figure and table numbers in the manuscript. Table 1 — excluded formulations — is in `DES_viscosity_CORRECTED.xlsx`, sheet `Descriptor_status`; Table 2 — descriptor definitions — is given in the manuscript.)
 
 ## 9. Citation
 
@@ -163,5 +186,5 @@ If you use this code or data, please cite the article (details to be added on pu
 
 ## 10. License and contact
 
-License: [to be added]
+License: code — MIT License; data — Creative Commons Attribution 4.0 (CC BY 4.0). *(Authors: confirm or change before release.)*
 Contact: Udayakumar Mani, Senthilkumar Rathinasamy — Green Separation Engineering Laboratory, SASTRA Deemed to be University, Thanjavur, Tamil Nadu 613 401, India.
