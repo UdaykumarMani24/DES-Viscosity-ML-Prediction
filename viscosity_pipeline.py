@@ -4,18 +4,6 @@ VISCOSITY PREDICTION FOR DEEP EUTECTIC SOLVENTS — Pipeline v3
 System-disjoint nested cross-validation, SHAP interpretability
 ================================================================================
 
-  DATA
-  [D1] Deduplication is now part of the code (was done outside the script, so
-       the published results could not be reproduced from the released CSV).
-       Step 1 drops exact duplicate rows; step 2 resolves rows that share
-       (system, molar ratio, temperature, viscosity) but carry different
-       descriptor sets. Every removed row is logged to reports/removed_rows.csv.
-  [D2] Data-quality report (reports/data_qc_*.csv + figS4): flags
-       non-monotonic temperature series, implausible 5 °C step ratios,
-       identical viscosity series recorded under different compositions, and
-       conflicting descriptor sets shared between different systems.
-       It does NOT silently change data: decisions go in Config
-       (drop_temperatures, value_corrections, rows_to_drop).
 
   METHOD
   [M1] Correlation pruning (|r| > 0.95) now happens INSIDE every training fold
